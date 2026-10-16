@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mb-3">
+  <h3 class="mb-1">Talent Pool</h3>
+  <div class="muted">Directory of people in the system</div>
+</div>
+
+<div class="p-4 rounded-4 app-card">
+  <div class="row g-2 align-items-center">
+    <div class="col-12 col-md-6">
+      <input id="search" class="form-control" placeholder="Search employees...">
+    </div>
+    <div class="col-12 col-md-6 text-md-end muted small">
+      Total: <b>{{ employees|length }}</b>
+    </div>
+  </div>
+
+  <div class="mt-3" id="cards">
+    {% for e in employees %}
+      <div class="p-3 rounded-4 mb-3" data-text="{{ (e.full_name ~ ' ' ~ (e.title or '') ~ ' ' ~ (e.department or '') ~ ' ' ~ (e.skills_csv or '')) | lower }}"
+           style="border:1px solid var(--border); background: color-mix(in srgb, var(--card) 92%, transparent);">
+        <div class="d-flex justify-content-between align-items-start gap-2">
+          <div>
+            <div class="fw-semibold">{{ e.full_name }}</div>
+            <div class="muted small">
+              {{ e.title or "—" }}
+              {% if e.department %} · {{ e.department }}{% endif %}
+              {% if e.years_experience is not none %} · {{ e.years_experience }}y exp{% endif %}
+            </div>
+          </div>
+          <div class="d-flex gap-2">
+            <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('employee_edit', employee_id=e.id) }}">Edit</a>
+            <form method="post" action="{{ url_for('employee_delete', employee_id=e.id) }}" onsubmit="return confirm('Delete this employee?')">
+              <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+            </form>
+          </div>
+        </div>
+        <div class="mt-2">
+          {% for s in e.skills_list()[:10] %}
+            <span class="pill">{{ s }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+  const s = document.getElementById('search');
+  if (s) {
+    s.addEventListener('input', () => {
+      const q = s.value.toLowerCase().trim();
+      document.querySelectorAll('#cards > div').forEach(card => {
+        const text = card.getAttribute('data-text') || '';
+        card.style.display = text.includes(q) ? '' : 'none';
+      });
+    });
+  }
+</script>
+{% endblock %}
+

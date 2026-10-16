@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="p-4 rounded-4 app-card" style="max-width:520px;">
+  <h3 class="mb-2">Page not found</h3>
+  <p class="muted mb-3">That address is not part of this app. Check the URL or go back to the home screen.</p>
+  <a class="btn btn-accent" href="{{ url_for('dashboard') }}">Go to dashboard</a>
+</div>
+{% endblock %}

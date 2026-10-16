@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mb-3">
+  <h3 class="mb-1">Staff login</h3>
+  <div class="muted">Sign in to view or update your profile</div>
+</div>
+
+<div class="p-4 rounded-4 app-card" style="max-width:480px;">
+  <form method="post">
+    <div class="mb-3">
+      <label class="form-label muted">Work email</label>
+      <input class="form-control" type="email" name="email" required placeholder="you@company.com">
+    </div>
+    <div class="mb-3">
+      <label class="form-label muted">Password</label>
+      <input class="form-control" type="password" name="password" required>
+    </div>
+    <button class="btn btn-accent w-100" type="submit">Log in</button>
+  </form>
+</div>
+{% endblock %}
+

@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mb-3 d-flex justify-content-between align-items-center">
+  <div>
+    <h3 class="mb-1">My profile</h3>
+    <div class="muted">Edit your details and see how you line up with the current role</div>
+  </div>
+  <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('employee_logout') }}">Log out</a>
+</div>
+
+<div class="row g-3">
+  <div class="col-12 col-xl-6">
+    <div class="p-4 rounded-4 app-card">
+      <h5 class="mb-2">Profile</h5>
+      <form method="post">
+        <div class="row g-2">
+          <div class="col-12">
+            <label class="form-label muted">Full name *</label>
+            <input class="form-control" name="full_name" required value="{{ e.full_name }}">
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label muted">Work email</label>
+            <input class="form-control" name="email" value="{{ e.email or '' }}">
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label muted">Role</label>
+            <input class="form-control" name="title" value="{{ e.title or '' }}">
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label muted">Department</label>
+            <input class="form-control" name="department" value="{{ e.department or '' }}">
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label muted">Years of experience</label>
+            <input class="form-control" name="years_experience" value="{{ e.years_experience if e.years_experience is not none else '' }}">
+          </div>
+          <div class="col-12">
+            <label class="form-label muted">Skills (comma-separated)</label>
+            <input class="form-control" name="skills_manual" value="{{ e.skills_csv or '' }}">
+          </div>
+          <div class="col-12">
+            <label class="form-label muted">Resume text</label>
+            <textarea class="form-control" name="resume_text" rows="5">{{ e.resume_text or '' }}</textarea>
+          </div>
+          <div class="col-12">
+            <label class="form-label muted">Change password (optional)</label>
+            <input class="form-control" type="password" name="new_password" placeholder="Leave blank to keep current password">
+          </div>
+        </div>
+        <button class="btn btn-accent mt-3 w-100" type="submit">Save my changes</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-12 col-xl-6">
+    <div class="p-4 rounded-4 app-card">
+      <h5 class="mb-2">Match to current role</h5>
+      {% if not job %}
+        <div class="muted small">No active job role has been defined yet. Ask your admin to add one on the Dashboard.</div>
+      {% else %}
+        <div class="d-flex justify-content-between align-items-start gap-2">
+          <div>
+            <div class="fw-semibold">{{ job.role_name }}</div>
+            <div class="muted small">
+              {% if job.department %}{{ job.department }}{% else %}—{% endif %}
+            </div>
+          </div>
+          {% if match %}
+            <div class="text-end">
+              <div class="fw-bold" style="color: var(--accent); font-size: 1.4rem;">{{ match.fit_percent }}%</div>
+              <div class="muted small">MATCH</div>
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="mt-3">
+          <div class="muted small mb-1">Required skills for this role</div>
+          {% for s in required_skills %}
+            <span class="pill pill-ok">{{ s }}</span>
+          {% else %}
+            <span class="muted small">No required skills set.</span>
+          {% endfor %}
+        </div>
+
+        {% if match %}
+          <div class="mt-3">
+            <div class="muted small mb-1">My coverage</div>
+            <div class="d-flex flex-wrap gap-2">
+              {% for s in match.matched_skills %}
+                <span class="pill pill-ok">{{ s }}</span>
+              {% endfor %}
+              {% for s in match.missing_skills %}
+                <span class="pill pill-bad">{{ s }}</span>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="mt-3">
+            <div class="muted small mb-1">Upskilling recommendations</div>
+            {% if recs %}
+              {% for item in recs[:5] %}
+                <div class="small mb-1">
+                  <span class="pill">{{ item.skill }}</span> {{ item.title }} <span class="muted">({{ item.type }})</span>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="muted small">No recommendations available.</div>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+

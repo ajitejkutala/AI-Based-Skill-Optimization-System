@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mb-3">
+  <h3 class="mb-1">Dashboard</h3>
+  <div class="muted">Add people, roles, and hiring needs</div>
+</div>
+
+<div class="row g-3">
+  <div class="col-12 col-xl-6">
+    <div class="p-4 rounded-4 app-card">
+      <h5 class="mb-2">Add employee</h5>
+      <form method="post" action="{{ url_for('employee_create') }}">
+        <div class="row g-2">
+          <div class="col-12">
+            <input class="form-control" name="full_name" required placeholder="Full Name">
+          </div>
+          <div class="col-12 col-md-6">
+            <input class="form-control" name="email" placeholder="Work Email (for login)">
+          </div>
+          <div class="col-12 col-md-6">
+            <input class="form-control" type="password" name="password" placeholder="Initial Password (for login)">
+          </div>
+          <div class="col-12 col-md-6">
+            <input class="form-control" name="title" placeholder="Role (e.g. ML Engineer)">
+          </div>
+          <div class="col-12 col-md-6">
+            <input class="form-control" name="department" placeholder="Department">
+          </div>
+          <div class="col-12">
+            <input class="form-control" name="years_experience" placeholder="Years of Experience" inputmode="numeric">
+          </div>
+          <div class="col-12 mt-2">
+            <div class="fw-semibold mb-1">Skills</div>
+            <div class="row g-2 align-items-center">
+              <div class="col">
+                <input id="empSkillName" class="form-control" placeholder="Skill name" onkeydown="if(event.key==='Enter'){event.preventDefault();addSkill('emp');}">
+              </div>
+              <div class="col-auto d-grid">
+                <button class="btn btn-accent" type="button" onclick="addSkill('emp')">+</button>
+              </div>
+            </div>
+            <input type="hidden" name="skills_manual" id="empSkillsCsv" value="">
+            <div id="empSkillsChips" class="mt-2"></div>
+          </div>
+          <div class="col-12">
+            <textarea class="form-control mt-2" name="resume_text" rows="4" placeholder="Resume text (optional)"></textarea>
+          </div>
+        </div>
+        <button class="btn btn-accent mt-3 w-100" type="submit">Add Employee</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-12 col-xl-6">
+    <div class="p-4 rounded-4 app-card">
+      <h5 class="mb-2">Add job description</h5>
+      <form method="post" action="{{ url_for('job_save') }}">
+        <input class="form-control" name="role_name" required value="{{ job.role_name if job else '' }}" placeholder="Job Title">
+        <input class="form-control mt-2" name="department" value="{{ job.department if job else '' }}" placeholder="Department">
+        <textarea class="form-control mt-2" name="description" rows="4" placeholder="Job Description (optional)">{{ job.description if job else '' }}</textarea>
+
+        <div class="fw-semibold mt-3 mb-1">Required Skills</div>
+        <div class="row g-2 align-items-center">
+          <div class="col">
+            <input id="jobSkillName" class="form-control" placeholder="Skill name" onkeydown="if(event.key==='Enter'){event.preventDefault();addSkill('job');}">
+          </div>
+          <div class="col-auto d-grid">
+            <button class="btn btn-accent" type="button" onclick="addSkill('job')">+</button>
+          </div>
+        </div>
+        <input type="hidden" name="required_skills" id="jobSkillsCsv" value="">
+        <div id="jobSkillsChips" class="mt-2"></div>
+
+        <button class="btn btn-accent mt-3 w-100" type="submit">Add Job Description</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function renderChips(kind, list) {
+    const chips = document.getElementById(kind === 'emp' ? 'empSkillsChips' : 'jobSkillsChips');
+    if (!chips) return;
+    chips.innerHTML = '';
+    list.forEach(k => {
+      const badge = document.createElement('span');
+      badge.className = 'pill';
+      badge.style.cursor = 'pointer';
+      badge.title = 'Click to remove';
+      badge.textContent = k + ' \u00d7';
+      badge.onclick = () => removeSkill(kind, k);
+      chips.appendChild(badge);
+    });
+  }
+
+  function addSkill(kind){
+    const nameEl = document.getElementById(kind === 'emp' ? 'empSkillName' : 'jobSkillName');
+    const csvEl  = document.getElementById(kind === 'emp' ? 'empSkillsCsv' : 'jobSkillsCsv');
+
+    const raw = (nameEl.value || '').trim();
+    if (!raw) return;
+    const key = raw.toLowerCase();
+
+    const existing = (csvEl.value || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+    if (!existing.includes(key)) {
+      existing.push(key);
+      csvEl.value = existing.join(', ');
+    }
+    renderChips(kind, existing);
+    nameEl.value = '';
+  }
+
+  function removeSkill(kind, skillToRemove) {
+    const csvEl = document.getElementById(kind === 'emp' ? 'empSkillsCsv' : 'jobSkillsCsv');
+    let existing = (csvEl.value || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+    existing = existing.filter(s => s !== skillToRemove);
+    csvEl.value = existing.join(', ');
+    renderChips(kind, existing);
+  }
+
+  (function syncSkillChips(){
+    function fill(csvId, kind){
+      const csvEl = document.getElementById(csvId);
+      if (!csvEl) return;
+      const list = (csvEl.value || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+      renderChips(kind, list);
+    }
+    fill('empSkillsCsv', 'emp');
+    fill('jobSkillsCsv', 'job');
+  })();
+</script>
+{% endblock %}
+

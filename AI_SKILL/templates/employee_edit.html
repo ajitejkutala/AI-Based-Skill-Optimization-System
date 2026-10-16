@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mb-3">
+  <h3 class="mb-1">Update Employee</h3>
+  <div class="muted">Edit employee profile and skills</div>
+</div>
+
+<div class="p-4 rounded-4 app-card">
+  <form method="post">
+    <div class="row g-2">
+      <div class="col-12">
+        <label class="form-label muted">Full name *</label>
+        <input class="form-control" name="full_name" required value="{{ e.full_name }}">
+      </div>
+      <div class="col-12 col-md-6">
+        <label class="form-label muted">Work email (for login)</label>
+        <input class="form-control" name="email" value="{{ e.email or '' }}">
+      </div>
+      <div class="col-12 col-md-6">
+        <label class="form-label muted">Role</label>
+        <input class="form-control" name="title" value="{{ e.title or '' }}">
+      </div>
+      <div class="col-12 col-md-6">
+        <label class="form-label muted">Department</label>
+        <input class="form-control" name="department" value="{{ e.department or '' }}">
+      </div>
+      <div class="col-12 col-md-6">
+        <label class="form-label muted">Years of experience</label>
+        <input class="form-control" name="years_experience" value="{{ e.years_experience if e.years_experience is not none else '' }}">
+      </div>
+      <div class="col-12 col-md-6">
+        <label class="form-label muted">Skills (comma-separated)</label>
+        <input class="form-control" name="skills_manual" value="{{ e.skills_csv or '' }}">
+      </div>
+      <div class="col-12">
+        <label class="form-label muted">Resume text (optional)</label>
+        <textarea class="form-control" name="resume_text" rows="6">{{ e.resume_text or '' }}</textarea>
+      </div>
+      <div class="col-12">
+        <label class="form-label muted">Reset password (optional)</label>
+        <input class="form-control" type="password" name="new_password" placeholder="Leave blank to keep current password">
+      </div>
+    </div>
+    <button class="btn btn-accent mt-3" type="submit">Save changes</button>
+    <a class="btn btn-outline-secondary mt-3" href="{{ url_for('talent_pool') }}">Cancel</a>
+  </form>
+</div>
+{% endblock %}
+
